@@ -44,16 +44,74 @@ class UI:
             font=("Times New Roman", 25),
             bg="white",
             fg="black",
-            command=self.start_game
+            command=self.choose_difficulty
         )
         self.start_btn.pack(side=tk.TOP, pady=30)
 
     def quit(self):
         self.window.destroy()
 
-    def start_game(self):
+    def choose_difficulty(self):
         self.start_label.destroy()
         self.start_btn.destroy()
+
+        self.difficulty_label = tk.Label(
+            self.window,
+            bg="white",
+            fg="black",
+            font=("Times New Roman", 20),
+            text="Select a difficulty level:"
+        )
+        self.difficulty_label.pack(side=tk.TOP, pady=30)
+
+        self.easy_btn = tk.Button(
+            self.window,
+            bg="white",
+            fg="black",
+            font=("Times New Roman", 16),
+            text="EASY",
+            command=lambda: self.difficulty("easy"),
+            width=10
+        )
+        self.easy_btn.pack(anchor=tk.CENTER, pady=10)
+
+        self.medium_btn = tk.Button(
+            self.window,
+            bg="white",
+            fg="black",
+            font=("Times New Roman", 16),
+            text="MEDIUM",
+            command=lambda: self.difficulty("medium"),
+            width=10
+        )
+        self.medium_btn.pack(anchor=tk.CENTER, pady=10)
+
+        self.hard_btn = tk.Button(
+            self.window,
+            bg="white",
+            fg="black",
+            font=("Times New Roman", 16),
+            text="HARD",
+            command=lambda: self.difficulty("hard"),
+            width=10
+        )
+        self.hard_btn.pack(anchor=tk.CENTER, pady=10)
+
+    def difficulty(self, difficulty_choice):
+        if difficulty_choice == "easy":
+            self.max_buttons = 10
+        elif difficulty_choice == "medium":
+            self.max_buttons = 20
+        elif difficulty_choice == "hard":
+            self.max_buttons = 30
+
+        self.start_game()
+
+    def start_game(self):
+        self.difficulty_label.destroy()
+        self.easy_btn.destroy()
+        self.medium_btn.destroy()
+        self.hard_btn.destroy()
 
         self.countdown_label = tk.Label(
             self.window,
@@ -130,11 +188,18 @@ class UI:
         )
         self.play_no_btn.grid(row=1, column=1, pady=30)
 
+        self.change_dif_btn = tk.Button(
+            self.frame,
+            text="CHANGE DIFFICULTY",
+            font=("Times New Roman", 16),
+            bg="white",
+            fg="black",
+            command=self.change_difficulty
+        )
+        self.change_dif_btn.grid(row=2, column=0, columnspan=2, pady=30)
+
     def play_yes(self):
         self.time_label.destroy()
-        self.play_again_label.destroy()
-        self.play_yes_btn.destroy()
-        self.play_no_btn.destroy()
         self.frame.destroy()
 
         self.target = Target(self)
@@ -144,6 +209,15 @@ class UI:
 
     def play_no(self):
         self.window.destroy()
+
+    def change_difficulty(self):
+        self.time_label.destroy()
+        self.frame.destroy()
+
+        self.target = Target(self)
+        self.time = Time(self)
+
+        self.choose_difficulty()
 
 
 class Target:
@@ -171,7 +245,7 @@ class Target:
         self.buttons_clicked += 1
         self.ui.score_label.config(text=f"Score: {self.buttons_clicked}")
 
-        if self.buttons_clicked < 20:
+        if self.buttons_clicked < self.ui.max_buttons:
             self.game_logic()
         else:
             self.ui.end_game()
@@ -201,7 +275,7 @@ class Time:
     def calculate_time(self):
         self.time_elapsed = time.time() - self.start_time
 
-        self.avg_reaction_time = f"{self.time_elapsed / 20:.2f} sec/btn"
+        self.avg_reaction_time = f"{self.time_elapsed / self.ui.max_buttons:.2f} sec/btn"
 
 
 app = UI()
